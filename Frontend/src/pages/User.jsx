@@ -1,6 +1,14 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
+import DashboardLayout from '../components/DashboardLayout';
+import Table from "../components/Table"
 
 function User() {
+
+  const [financialData, setFinancialData] = useState({
+      totalExpense : 0,
+      totalIncome: 0,
+      totalSaving: 0
+  })
 
   const fetchUserData = async()=>{
     const token = localStorage.getItem("accessToken");
@@ -10,7 +18,7 @@ function User() {
     }
 
     try {
-      const response = await fetch("http://localhost:3000/api/v1/user/finance-data", {
+      const response = await fetch(`${import.meta.env.VITE_DB_URL}/user/finance-data`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -20,7 +28,11 @@ function User() {
 
       if (response.ok) {
         const data = await response.json()
-        console.log(data);
+        setFinancialData({
+          totalExpense: data.data.totalExpense,
+          totalIncome: data.data.totalIncome,
+          totalSaving: data.data.totalSaving
+        })
         return;
       } else {
         console.error("Failed to add expense");
@@ -37,11 +49,25 @@ function User() {
   return (
     <div>
       {/* Text-Data */}
-      <div className='flex w-full justify-around'>
-        <div className='bg-red-400'>Expense</div>
-        <div className='bg-green-400'>Income</div>
-        <div className='bg-blue-400'>Saving</div>
+      <div className='flex w-full justify-around my-10'>
+        <div className='bg-blue-400 text-white rounded-xl text-center p-4 md:p-8 lg:px-20 md:px-14'>
+          <p>Expense</p>
+          <p className='italic'>₹ {financialData.totalExpense}</p>
+          </div>
+        <div className='bg-blue-400 text-white rounded-xl text-center p-4 md:p-8 lg:px-20 md:px-14'>
+          <p>Income</p>
+        <p>₹ {financialData.totalIncome}</p>
+        </div>
+        <div className='bg-blue-400 text-white rounded-xl text-center p-4 md:p-8 lg:px-20 md:px-14'>
+        <p>Saving</p>
+        <p>₹ {financialData.totalSaving}</p>
+        </div>
       </div>
+
+      {/* Dashboard Layout */}
+      <DashboardLayout/>
+
+      <Table/>
     </div>
   )
 }

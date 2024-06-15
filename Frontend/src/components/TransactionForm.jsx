@@ -30,7 +30,7 @@ function TransactionForm() {
     };
 
     try {
-      const response = await fetch("http://localhost:3000/api/v1/expense/add-expense", {
+      const response = await fetch(`${import.meta.env.VITE_DB_URL}/expense/add-expense`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

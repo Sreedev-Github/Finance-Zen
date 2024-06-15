@@ -264,7 +264,7 @@ const getUserFinancialData = asyncHandler(async (req, res) => {
     { $group: { _id: null, totalAmount: { $sum: "$amount" } } },
   ]);
 
-  const totalSavings = await Saving.aggregate([
+  const totalSaving = await Saving.aggregate([
     { $match: { user: req.user._id } },
     { $group: { _id: null, totalAmount: { $sum: "$amount" } } },
   ]);
@@ -272,7 +272,7 @@ const getUserFinancialData = asyncHandler(async (req, res) => {
   const userFinancialData = {
     totalIncome: totalIncome[0]?.totalAmount || 0,
     totalExpense: totalExpense[0]?.totalAmount || 0,
-    totalSavings: totalSavings[0]?.totalAmount || 0,
+    totalSaving: totalSaving[0]?.totalAmount || 0,
   };
 
   console.log(userFinancialData);
