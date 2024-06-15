@@ -1,0 +1,9 @@
+# Node Modules and VS Code settings
+/.vscode
+/node_modules
+./dist
+
+# Environmental variables
+*.env
+.env
+.env*
