@@ -9,7 +9,6 @@ import User from './pages/User'
 import Signup from './pages/Signup'
 import Login from './pages/Login'
 import AddTransaction from './pages/AddTransaction'
-import FinaceChart from './components/Chart'
 
 
 const router = createBrowserRouter([
@@ -39,7 +38,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/chart",
-        element: <FinaceChart/>
+        element: <h1>Chart</h1>
       },
       {
         path: "/footer",
