@@ -76,7 +76,7 @@ function Table() {
               <li>
                 <div className="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
                   <input
-                    checked=""
+                    // checked=""
                     id="filter-radio-example-2"
                     type="radio"
                     value=""
