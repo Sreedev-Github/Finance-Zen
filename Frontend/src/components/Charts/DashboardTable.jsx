@@ -3,7 +3,7 @@ import "flowbite";
 
 function Table() {
   return (
-    <div className="relative overflow-x-auto shadow-md sm:rounded-lg w-full h-full">
+    <div className="relative overflow-x-auto md:w-auto md:h-auto lg:max-h-[250px] items-center">
       <div className="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4">
         <div>
           <button

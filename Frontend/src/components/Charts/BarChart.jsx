@@ -64,12 +64,13 @@ function BarChart() {
           },
         },
       });
-    }
-
-    // Manually trigger chart resize
+      // Manually trigger chart resize
     if (chartRef.current) {
       chartRef.current.resize();
     }
+    }
+
+    
   };
 
   useEffect(() => {
@@ -82,8 +83,7 @@ function BarChart() {
   }, []);
 
   return (
-    <div className="w-full sm:max-h-[700px]"> {/* Set a maximum height */}
-    <h1 className="text-2xl text-black text-center mb-4">Bar Chart</h1>
+    <div className="md:w-auto md:h-auto relative"> {/* Set a maximum height */}
       <Bar
         ref={chartRef}
         data={{

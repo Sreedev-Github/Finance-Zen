@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import splitStringUsingRegex from "../utils/splitStringUsingRegex";
 import { Button, Card } from "../components/index";
 import mockupImage from "../assets/mockup.jpg";
+import { Link } from "react-router-dom";
 
 function Home() {
   const heroHeading = "Your New Financial Sidekick";
@@ -54,7 +55,7 @@ function Home() {
             ))}
           </motion.p>
 
-          <Button btnText="Get Started" />
+          <Link to="/login"><Button btnText="Get Started" /></Link>
         </div>
       </div>
 

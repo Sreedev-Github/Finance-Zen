@@ -110,3 +110,31 @@
 }
 
 /* Chart */
+@media screen and (max-width: 767px) {
+
+  .dashboard-wrapper{
+    width: auto;
+    height: auto;
+    margin: 0 auto;
+  }
+
+  .dashboardBox {
+    width: 90%;
+    height: fit-content;
+    margin: 0 auto;
+  }
+}
+
+@media screen and (max-width: 390px) {
+  .dashboardBox {
+    width: 80%;
+    margin: 0 auto;
+  }
+}
+
+@media screen and (max-width:360px) {
+  .dashboardBox {
+    width: 70%;
+    margin: 0 auto;
+  }
+}
