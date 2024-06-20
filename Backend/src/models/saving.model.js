@@ -17,7 +17,7 @@ const savingSchema = new Schema(
     method: {
       // Stores the mode of savings
       type: String,
-      enum: ["cash", "bank account", "investment", "mutual funds", "other"],
+      enum: ["Bank account", "Investment", "Mutual funds", "Other"],
       required: true,
     },
     category: {

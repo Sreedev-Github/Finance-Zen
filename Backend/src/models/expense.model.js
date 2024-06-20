@@ -17,7 +17,7 @@ const expenseSchema = new Schema(
     method: {
       // Stores the mode of transaction
       type: String,
-      enum: ["cash", "credit card", "UPI", "other"],
+      enum: ["Cash", "Credit card", "UPI", "Other"],
       required: true,
     },
     category: {

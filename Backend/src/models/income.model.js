@@ -17,8 +17,7 @@ const incomeSchema = new Schema(
     method: {
       // Stores the mode of transaction
       type: String,
-      lowercase: true,
-      enum: ["cash", "bank credit", "other"],
+      enum: ["Cash", "Bank credit", "Other"],
       required: true,
     },
     category: {

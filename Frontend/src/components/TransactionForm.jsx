@@ -1,15 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 function TransactionForm() {
   const [startDate, setStartDate] = useState(new Date());
+  const [selectedOption, setSelectedOption] = useState("expense");
   const [formData, setFormData] = useState({
     amount: "",
     category: "",
     method: "",
     description: ""
   });
+  const [methodOfPayment, setMethodOfPayment] = useState(["Cash", "Credit Card", "UPI", "other"]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -30,7 +32,7 @@ function TransactionForm() {
     };
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_DB_URL}/expense/add-expense`, {
+      const response = await fetch(`${import.meta.env.VITE_DB_URL}/${selectedOption}/add-${selectedOption}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -40,7 +42,7 @@ function TransactionForm() {
       });
 
       if (response.ok) {
-        console.log("Expense added successfully");
+        console.log(`${selectedOption} added successfully`);
       } else {
         console.error("Failed to add expense");
       }
@@ -63,12 +65,53 @@ function TransactionForm() {
     }
   };
 
+  const selectRadio = (e)=>{
+    setSelectedOption(e.target.name)    
+  }
+
+  useEffect(() => {
+    if(selectedOption === "expense"){
+      setMethodOfPayment(["Cash", "Credit card", "UPI", "Other"]);
+    }else if(selectedOption === "income"){
+      setMethodOfPayment(["Cash", "Bank credit", "Other"]);
+    }else{
+      setMethodOfPayment(["Bank account", "Investment", "Mutual funds", "Other"]);
+    }
+  }, [selectedOption]);
   return (
+<>
+
+<div className="px-4 mx-auto max-w-2xl py-4">
+<h3 className="mb-4 font-semibold text-gray-900 dark:text-white">Select your transaction type</h3>
+<ul className="items-center w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg sm:flex dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+    <li className="w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
+        <div className="flex items-center ps-3" onClick={selectRadio} name="expense">
+            <input checked={selectedOption === "expense"} id="horizontal-list-radio-expense" type="radio" value="" name="expense" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
+            <label for="horizontal-list-radio-expense" className="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Expense</label>
+        </div>
+    </li>
+    <li className="w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
+        <div className="flex items-center ps-3" onClick={selectRadio}>
+            <input checked={selectedOption === "income"} id="horizontal-list-radio-income" type="radio" value="" name="income" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
+            <label for="horizontal-list-radio-income" className="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Income</label>
+        </div>
+    </li>
+    <li className="w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
+        <div className="flex items-center ps-3" onClick={selectRadio}>
+            <input checked={selectedOption === "saving"} id="horizontal-list-radio-saving" type="radio" value="" name="saving" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
+            <label for="horizontal-list-radio-saving" className="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Saving</label>
+        </div>
+    </li>
+</ul>
+</div>
+
+
+
     <section className="bg-white dark:bg-gray-900">
-      <div className="py-8 px-4 mx-auto max-w-2xl lg:py-16">
-        <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
-          Add a new transaction
-        </h2>
+      <div className="py-8 px-4 mx-auto max-w-2xl lg:py-3 mb-6">
+        {/* <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
+          Add your new expense
+        </h2> */}
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
             <div className="sm:col-span-2">
@@ -76,7 +119,7 @@ function TransactionForm() {
                 Amount
               </label>
               <input
-                type="number"
+                type="text"
                 name="amount"
                 id="amount"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
@@ -125,10 +168,10 @@ function TransactionForm() {
                 onChange={handleChange}
               >
                 <option value="">Select method of payment</option>
-                <option value="cash">Cash</option>
-                <option value="credit card">Credit card</option>
-                <option value="UPI">UPI</option>
-                <option value="other">Other</option>
+                <option value={methodOfPayment[0]}>{methodOfPayment[0]}</option>
+                <option value={methodOfPayment[1]}>{methodOfPayment[1]}</option>
+                <option value={methodOfPayment[2]}>{methodOfPayment[2]}</option>
+                <option className={methodOfPayment[3] ? "block" : "hidden"} value={methodOfPayment[3]}>{methodOfPayment[3]}</option>
               </select>
             </div>
             <div className="sm:col-span-2">
@@ -155,6 +198,8 @@ function TransactionForm() {
         </form>
       </div>
     </section>
+
+    </>    
   );
 }
 
