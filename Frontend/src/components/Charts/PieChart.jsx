@@ -2,9 +2,24 @@ import React, { useEffect, useState, useRef } from "react";
 import { Pie } from "react-chartjs-2";
 import { chartData } from "../../utils/chartData.js";
 
-function PieChart() {
+function PieChart({pieData}) {
   const [options, setOptions] = useState({});
   const chartRef = useRef(null);
+
+  const pieChartData = [
+    {
+      label: "Expense",
+      amount: pieData.totalExpense
+    },
+    {
+      label: "Income",
+      amount: pieData.totalIncome
+    },
+    {
+      label: "Saving",
+      amount: pieData.totalSaving
+    },
+  ]
 
   const updateOptions = () => {
     const width = window.innerWidth;
@@ -38,11 +53,11 @@ function PieChart() {
       <Pie
         ref={chartRef}
         data={{
-          labels: chartData.map((data) => data.label),
+          labels: pieChartData.map((data) => data.label),
           datasets: [
             {
-              label: "Count",
-              data: chartData.map((data) => data.value),
+              label: "Amount",
+              data: pieChartData.map((data) => data.amount),
               backgroundColor: [
                 "rgba(43, 63, 229, 0.8)",
                 "rgba(250, 192, 19, 0.8)",

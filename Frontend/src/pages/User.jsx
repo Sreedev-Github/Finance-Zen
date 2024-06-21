@@ -65,7 +65,7 @@ function User() {
       </div>
 
       {/* Dashboard Layout */}
-      <DashboardLayout/>
+      <DashboardLayout pieData= {financialData}/>
 
       <Table/>
     </div>

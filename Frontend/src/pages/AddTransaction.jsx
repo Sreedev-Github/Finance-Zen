@@ -7,7 +7,6 @@ function AddTransaction() {
     <div>
       <h1 className="text-center text-3xl mt-10 mb-6">Add your Transaction</h1>
       <TransactionForm />
-
     </div>
   );
 }
