@@ -121,4 +121,21 @@ const deleteExpense = asyncHandler(async (req, res) => {
     );
 });
 
-export { addExpense, updateExpense, deleteExpense };
+const highestExpenses = asyncHandler(async(req, res)=>{
+  const topExpenses = await Expense.find({ user: req.user._id })
+    .sort({ amount: -1 })
+    .limit(3)
+    .select("date amount category -_id");
+
+    return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        topExpenses,
+        "Your top expenses has been fetched successully"
+      )
+    );
+})
+
+export { addExpense, updateExpense, deleteExpense, highestExpenses };

@@ -1,7 +1,44 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "flowbite";
 
 function Table() {
+  const [tableData, setTableData] = useState({});
+
+  const fetchUserData = async () => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      console.error("No access token found");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_DB_URL}/expense/top-expense`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setTableData(data);
+        return;
+      } else {
+        console.error("Failed to add expense");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
   return (
     <div className="relative overflow-x-auto md:w-auto md:h-auto lg:max-h-[250px] items-center">
       <div className="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4">
@@ -161,21 +198,19 @@ function Table() {
           </tr>
         </thead>
         <tbody>
-          <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-            <td className="px-6 py-4">$2999</td>
-            <td className="px-6 py-4">Laptop</td>
-            <td className="px-6 py-4">18-06-2024</td>
-          </tr>
-          <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-            <td className="px-6 py-4">$1999</td>
-            <td className="px-6 py-4">Laptop PC</td>
-            <td className="px-6 py-4">17-09-2023</td>
-          </tr>
-          <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-            <td className="px-6 py-4">$99</td>
-            <td className="px-6 py-4">Accessories</td>
-            <td className="px-6 py-4">02-06-2024</td>
-          </tr>
+          {tableData.data &&
+            tableData.data.map((data, index) => (
+              <tr
+                key={index}
+                className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+              >
+                <td className="px-6 py-4">{data.amount}</td>
+                <td className="px-6 py-4">{data.category}</td>
+                <td className="px-6 py-4">
+                  {new Date(data.date).toLocaleDateString()}
+                </td>
+              </tr>
+            ))}
         </tbody>
       </table>
     </div>

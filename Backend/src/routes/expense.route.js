@@ -3,6 +3,7 @@ import { verifyJWT } from "../middlwares/auth.middleware.js";
 import {
   addExpense,
   deleteExpense,
+  highestExpenses,
   updateExpense,
 } from "../controllers/expense.controller.js";
 
@@ -14,5 +15,6 @@ router.use(verifyJWT);
 router.route("/add-expense").post(addExpense);
 router.route("/update-expense/:expenseId").post(updateExpense);
 router.route("/delete-expense/:expenseId").delete(deleteExpense);
+router.route("/top-expense").post(highestExpenses);
 
 export default router;

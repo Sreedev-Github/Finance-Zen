@@ -9,6 +9,7 @@ import User from './pages/User'
 import Signup from './pages/Signup'
 import Login from './pages/Login'
 import AddTransaction from './pages/AddTransaction'
+import EditTransaction from './pages/EditTransaction'
 
 
 const router = createBrowserRouter([
@@ -37,8 +38,8 @@ const router = createBrowserRouter([
         element: <Login/>,
       },
       {
-        path: "/chart",
-        element: <h1>Chart</h1>
+        path: "/edit/:transactionType/:transactionId",
+        element: <EditTransaction />
       },
       {
         path: "/footer",

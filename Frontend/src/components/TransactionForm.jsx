@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-function TransactionForm() {
+function TransactionForm({onSubmit, btnText, editForm: initialEditForm}) {
+  const [editForm, setEditForm] = useState(initialEditForm)
   const [startDate, setStartDate] = useState(new Date());
   const [selectedOption, setSelectedOption] = useState("expense");
   const [formData, setFormData] = useState({
@@ -16,41 +17,13 @@ function TransactionForm() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    console.log(formData);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      console.error("No access token found");
-      return;
-    }
-
-    const payload = {
-      ...formData,
-      date: startDate
-    };
-
-    try {
-      const response = await fetch(`${import.meta.env.VITE_DB_URL}/${selectedOption}/add-${selectedOption}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-      });
-
-      if (response.ok) {
-        console.log(`${selectedOption} added successfully`);
-      } else {
-        console.error("Failed to add expense");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
-
+    onSubmit(formData, startDate, selectedOption);
+  }
   const checkNumber = (e) => {
     const allowedKeys = [
       "Backspace", "Enter", "Control", "Meta", "Shift", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "Tab"
@@ -66,7 +39,7 @@ function TransactionForm() {
   };
 
   const selectRadio = (e)=>{
-    setSelectedOption(e.target.name)    
+    setSelectedOption(e.target.name)
   }
 
   useEffect(() => {
@@ -87,19 +60,27 @@ function TransactionForm() {
     <li className="w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
         <div className="flex items-center ps-3" onClick={selectRadio} name="expense">
             <input checked={selectedOption === "expense"} id="horizontal-list-radio-expense" type="radio" value="" name="expense" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
-            <label for="horizontal-list-radio-expense" className="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Expense</label>
+            <label htmlFor="horizontal-list-radio-expense" className="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Expense</label>
         </div>
     </li>
     <li className="w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
         <div className="flex items-center ps-3" onClick={selectRadio}>
-            <input checked={selectedOption === "income"} id="horizontal-list-radio-income" type="radio" value="" name="income" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
-            <label for="horizontal-list-radio-income" className="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Income</label>
+        <input
+  checked={selectedOption === "income"}
+  id="horizontal-list-radio-income"
+  type="radio"
+  value=""
+  name="income"
+  className={`${editForm ? "disabled" : ""} w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500`}
+/>
+
+            <label htmlFor="horizontal-list-radio-income" className="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Income</label>
         </div>
     </li>
     <li className="w-full border-b border-gray-200 sm:border-b-0 sm:border-r dark:border-gray-600">
         <div className="flex items-center ps-3" onClick={selectRadio}>
             <input checked={selectedOption === "saving"} id="horizontal-list-radio-saving" type="radio" value="" name="saving" className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500" />
-            <label for="horizontal-list-radio-saving" className="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Saving</label>
+            <label htmlFor="horizontal-list-radio-saving" className="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Saving</label>
         </div>
     </li>
 </ul>
@@ -193,7 +174,7 @@ function TransactionForm() {
             type="submit"
             className="inline-flex items-center px-5 py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-twitter-blue rounded-lg focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-900 hover:bg-primary-800"
           >
-            Add Transaction
+            {btnText}
           </button>
         </form>
       </div>

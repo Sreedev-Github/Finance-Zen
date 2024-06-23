@@ -1,5 +1,5 @@
 import { Router } from "express";
-import {registerUser,loginUser, refreshAccessToken, logoutUser, getCurrentUser, getUserFinancialData, addProfile, getTransactionsForLastNDays, getTransactionsForLastNTransactions } from "../controllers/user.controller.js"
+import {registerUser,loginUser, refreshAccessToken, logoutUser, getCurrentUser, getUserFinancialData, addProfile, getTransactionsForLastNDays, getSpecificTransactionsForLastNTransactions, getAllTransactionsInOrder } from "../controllers/user.controller.js"
 import { verifyJWT } from "../middlwares/auth.middleware.js";
 
 const router = Router();
@@ -12,6 +12,7 @@ router.route("/current-user").get(verifyJWT, getCurrentUser);
 router.route("/finance-data").post(verifyJWT,getUserFinancialData);
 router.route("/add-profile").post(verifyJWT, addProfile)
 router.route("/transactions/:days").post(verifyJWT, getTransactionsForLastNDays);
-router.route("/transactions/:count/:type").post(verifyJWT, getTransactionsForLastNTransactions);
+router.route("/transactions/:count/:type").post(verifyJWT, getSpecificTransactionsForLastNTransactions);
+router.route("/all-transactions/:count").post(verifyJWT, getAllTransactionsInOrder);
 
 export default router;
