@@ -3,6 +3,7 @@ import { verifyJWT } from "../middlwares/auth.middleware.js";
 import {
   addIncome,
   deleteIncome,
+  getIncome,
   updateIncome,
 } from "../controllers/income.controller.js";
 
@@ -12,6 +13,7 @@ const router = Router();
 router.use(verifyJWT);
 
 router.route("/add-income").post(addIncome);
+router.route("/getIncome/:incomeId").post(getIncome);
 router.route("/update-income/:incomeId").post(updateIncome);
 router.route("/delete-income/:incomeId").delete(deleteIncome);
 

@@ -37,6 +37,25 @@ const addIncome = asyncHandler(async (req, res) => {
     );
 });
 
+// get Income
+const getIncome = asyncHandler(async(req, res)=>{
+  if(!req.params.incomeId){
+    throw new ApiError(400, "Income Id is not provided");
+  }
+  const { incomeId } = req.params;
+
+  const income = await Income.findById(incomeId)
+
+  if(!income){
+    throw new ApiError(404, "No income found with the provided Id");
+  }
+
+  return res
+  .status(200)
+  .json(new ApiResponse(200, income, "Your income has been fetched successfully"))
+
+})
+
 // update income
 const updateIncome = asyncHandler(async (req, res) => {
   if (!req.params?.incomeId) {
@@ -105,5 +124,6 @@ const deleteIncome = asyncHandler(async (req, res) => {
 export {
     addIncome,
     updateIncome,
-    deleteIncome
+    deleteIncome,
+    getIncome
 }

@@ -47,6 +47,26 @@ const addExpense = asyncHandler(async (req, res) => {
     );
 });
 
+
+// get expense
+const getExpense = asyncHandler(async(req, res)=>{
+  if(!req.params.expenseId){
+    throw new ApiError(400, "Expense Id is not provided");
+  }
+  const { expenseId } = req.params;
+
+  const expense = await Expense.findById(expenseId)
+
+  if(!expense){
+    throw new ApiError(404, "No expense found with the provided Id");
+  }
+
+  return res
+  .status(200)
+  .json(new ApiResponse(200, expense, "Your expense has been fetched successfully"))
+
+})
+
 // update expense
 const updateExpense = asyncHandler(async (req, res) => {
   if (!req.params.expenseId) {
@@ -138,4 +158,4 @@ const highestExpenses = asyncHandler(async(req, res)=>{
     );
 })
 
-export { addExpense, updateExpense, deleteExpense, highestExpenses };
+export { addExpense, updateExpense, deleteExpense, highestExpenses, getExpense };

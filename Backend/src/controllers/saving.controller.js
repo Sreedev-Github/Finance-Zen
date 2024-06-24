@@ -33,6 +33,25 @@ const addSaving = asyncHandler(async (req, res) => {
     );
 });
 
+// get saving
+const getSaving = asyncHandler(async(req, res)=>{
+  if(!req.params.savingId){
+    throw new ApiError(400, "Saving Id is not provided");
+  }
+  const { savingId } = req.params;
+
+  const saving = await Saving.findById(savingId)
+
+  if(!saving){
+    throw new ApiError(404, "No saving found with the provided Id");
+  }
+
+  return res
+  .status(200)
+  .json(new ApiResponse(200, saving, "Your saving has been fetched successfully"))
+
+})
+
 // update saving
 const updateSaving = asyncHandler(async (req, res) => {
   if (!req.params.savingId) {
@@ -108,4 +127,4 @@ const deleteSaving = asyncHandler(async (req, res) => {
     );
 });
 
-export { addSaving, updateSaving, deleteSaving };
+export { addSaving, updateSaving, deleteSaving, getSaving };
