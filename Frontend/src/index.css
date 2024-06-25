@@ -138,3 +138,38 @@
     margin: 0 auto;
   }
 }
+
+/* Alert */
+.alert {
+  position: fixed;
+  top: 20px;
+  right: -300px; /* Start off-screen */
+  background-color: #4caf50; /* Default green */
+  color: white;
+  padding: 15px;
+  border-radius: 5px;
+  z-index: 1000;
+  transition: right 0.5s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.alert.show {
+  right: 20px; /* Slide in */
+}
+
+.alert.error {
+  background-color: #f44336; /* Red for errors */
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  margin-left: 10px;
+}
+
+

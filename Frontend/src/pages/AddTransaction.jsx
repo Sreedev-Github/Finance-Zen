@@ -1,7 +1,10 @@
 import React from "react";
 import TransactionForm from "../components/TransactionForm";
+import { useNavigate } from "react-router-dom";
 
 function AddTransaction() {
+
+  const navigate = useNavigate(); 
 
   const handleSubmit = async (formData, startDate, selectedOption) => {
     const token = localStorage.getItem("accessToken");
@@ -26,7 +29,7 @@ function AddTransaction() {
       });
 
       if (response.ok) {
-        console.log(`${selectedOption} added successfully`);
+        navigate("/user", { state: { alertMessage: `${selectedOption} has been added successfully`, alertType: "success" } });
       } else {
         console.error("Failed to add expense");
       }

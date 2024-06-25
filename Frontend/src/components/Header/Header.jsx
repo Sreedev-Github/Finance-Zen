@@ -2,7 +2,7 @@ import React,{useEffect, useState} from "react";
 import "../../index.css";
 import { Link } from "react-router-dom";
 
-function Header({val1 = "Home", val2= "About", val3= "AddExpense"}) {
+function Header({val1 = "Home", val2= "About", val3= "AddTransaction"}) {
 
     const [navShow, setNavShow] = useState(false)
   //   const [navChange, setNavChange]= useState(false)

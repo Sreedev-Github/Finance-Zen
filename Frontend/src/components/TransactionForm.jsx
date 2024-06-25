@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-function TransactionForm({ onSubmit, btnText, editForm: initialEditForm, data }) {
+function TransactionForm({ onSubmit, btnText, editForm: initialEditForm, data, setHasChanges }) {
   const [editForm, setEditForm] = useState(initialEditForm);
   const [startDate, setStartDate] = useState(new Date());
   const [selectedOption, setSelectedOption] = useState("expense");
@@ -17,6 +17,7 @@ function TransactionForm({ onSubmit, btnText, editForm: initialEditForm, data })
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    setHasChanges(true); // Mark that changes have been made
   };
 
   const handleSubmit = (e) => {
@@ -41,6 +42,7 @@ function TransactionForm({ onSubmit, btnText, editForm: initialEditForm, data })
   const selectRadio = (e) => {
     if (!editForm) {
       setSelectedOption(e.target.name);
+      setHasChanges(true); // Mark that changes have been made
     }
   };
 
@@ -149,7 +151,10 @@ function TransactionForm({ onSubmit, btnText, editForm: initialEditForm, data })
                 <DatePicker
                   name="date"
                   selected={startDate}
-                  onChange={(date) => setStartDate(date)}
+                  onChange={(date) => {
+                    setStartDate(date);
+                    setHasChanges(true); // Mark that changes have been made
+                  }}
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                 />
               </div>

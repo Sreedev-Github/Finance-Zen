@@ -44,7 +44,7 @@ function Table() {
 
   const handleEditClick = (e, dataId, dataType) => {
     e.preventDefault();
-    navigate(`/edit/${dataType.toLowerCase()}/${dataId}`, { state: { dataId } });
+    navigate(`/edit/${dataType.toLowerCase()}/${dataId}`);
   };
 
   return (
