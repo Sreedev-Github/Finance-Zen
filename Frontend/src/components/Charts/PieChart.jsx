@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Pie } from "react-chartjs-2";
-import { chartData } from "../../utils/chartData.js";
 
 function PieChart({pieData}) {
   const [options, setOptions] = useState({});

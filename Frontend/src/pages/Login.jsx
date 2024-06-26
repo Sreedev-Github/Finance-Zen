@@ -1,17 +1,36 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "../components";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useDispatch } from 'react-redux'
+import {login as authLogin} from '../store/authSlice'
 
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch()
+  const [showAlert, setShowAlert] = useState(false);
+
+  useEffect(() => {
+    const alertShown = sessionStorage.getItem("alertShown");
+    if (location.state && location.state.alertMessage && !alertShown) {
+      // Display alert and set timer to hide it after 2 seconds
+      setShowAlert(true);
+      sessionStorage.setItem("alertShown", "true");
+
+      const timeout = setTimeout(() => {
+        setShowAlert(false);
+      }, 3000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [location.state]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
-      const response = await fetch("http://localhost:3000/api/v1/user/login", {
+      const response = await fetch(`${import.meta.env.VITE_DB_URL}/user/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -23,6 +42,8 @@ function Login() {
         const data = await response.json();
         localStorage.setItem("accessToken", data.data.accessToken);
         localStorage.setItem("refreshToken", data.data.refreshToken);
+        console.log(data.data.user);
+        dispatch(authLogin(data.data.user));
         navigate("/user");
       } else {
         console.error("Login failed");
@@ -32,8 +53,20 @@ function Login() {
     }
   };
 
+  const handleCloseAlert = () => {
+    setShowAlert(false);
+  };
+
   return (
     <div className="min-h-screen bg-slate-100 py-6 flex flex-col justify-center sm:py-12 my-5 md:max-w-[85vw] mx-auto rounded-2xl">
+      {showAlert && (
+        <div className={`alert error ${showAlert ? "show" : ""}`}>
+          Please login to your account first!
+          <button className="close-btn" onClick={handleCloseAlert}>
+            <i className="fa-solid fa-x"></i>
+          </button>
+        </div>
+      )}
       <div className="relative py-3 sm:max-w-xl sm:mx-auto lg:min-w-[50%]">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-300 to-blue-600 shadow-lg transform -skew-y-6 sm:skew-y-0 sm:-rotate-6 sm:rounded-3xl"></div>
         <div className="relative px-4 py-10 bg-white shadow-lg sm:rounded-3xl sm:p-20">
@@ -52,8 +85,9 @@ function Login() {
                       id="username"
                       name="username"
                       type="text"
-                      className="peer placeholder-transparent h-10 w-full bg-white border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600"
+                      className="peer placeholder-transparent h-10 w-full bg-white border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:border-rose-600"
                       placeholder="Email address"
+                      required
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                     />
@@ -70,9 +104,10 @@ function Login() {
                       id="password"
                       name="password"
                       type="password"
-                      className="peer placeholder-transparent h-10 bg-white w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600"
+                      className="peer placeholder-transparent h-10 bg-white w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:border-rose-600"
                       placeholder="Password"
                       value={password}
+                      required
                       onChange={(e) => setPassword(e.target.value)}
                     />
                     <label

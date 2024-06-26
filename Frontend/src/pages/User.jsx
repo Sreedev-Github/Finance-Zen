@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import DashboardLayout from "../components/DashboardLayout";
 import Table from "../components/Table";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 function User() {
   const [financialData, setFinancialData] = useState({
@@ -10,6 +10,7 @@ function User() {
     totalSaving: 0,
   });
   const location = useLocation();
+  const navigate = useNavigate();
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState("");
   const [showAlert, setShowAlert] = useState(false);
@@ -40,7 +41,22 @@ function User() {
           totalIncome: data.data.totalIncome,
           totalSaving: data.data.totalSaving,
         });
-        return;
+
+        // Check if there's an alert message in sessionStorage
+        const storedAlertMessage = sessionStorage.getItem("alertMessage");
+        if (storedAlertMessage) {
+          setAlertMessage(storedAlertMessage);
+            setAlertType(sessionStorage.getItem("alertType") || "success");
+            setShowAlert(true);
+          setTimeout(() => {
+            setAlertMessage("");
+            setAlertType("");
+            setShowAlert(false);
+          }, 2000);
+          // Clear sessionStorage after displaying the alert
+          sessionStorage.removeItem("alertMessage");
+          sessionStorage.removeItem("alertType");
+        }
       } else {
         console.error("Failed to fetch user data");
       }
@@ -51,17 +67,33 @@ function User() {
 
   useEffect(() => {
     fetchUserData();
+  }, []);
+
+  useEffect(() => {
     if (location.state && location.state.alertMessage) {
-      setAlertMessage(location.state.alertMessage);
-      setAlertType(location.state.alertType);
-      setShowAlert(true);
-      setTimeout(() => {
+      // Store alert message and type in sessionStorage
+      sessionStorage.setItem("alertMessage", location.state.alertMessage);
+      sessionStorage.setItem(
+        "alertType",
+        location.state.alertType || "success"
+      );
+
+      // Redirect to the same location without state to prevent showing on refresh
+      navigate(location.pathname);
+
+      // Clear the alert after 3 seconds
+      const timeout = setTimeout(() => {
         setShowAlert(false);
         setAlertMessage("");
         setAlertType("");
+        sessionStorage.removeItem("alertMessage");
+        sessionStorage.removeItem("alertType");
       }, 2000);
+
+      // Cleanup function to clear timeout on component unmount or when location state changes
+      return () => clearTimeout(timeout);
     }
-  }, [location.state]);
+  }, [location.state, navigate]);
 
   const handleCloseAlert = () => {
     setShowAlert(false);
@@ -75,7 +107,7 @@ function User() {
         <div className={`alert ${alertType} ${showAlert ? "show" : ""}`}>
           {alertMessage}
           <button className="close-btn" onClick={handleCloseAlert}>
-          <i class="fa-solid fa-x"></i>
+            <i className="fa-solid fa-x"></i>
           </button>
         </div>
       )}

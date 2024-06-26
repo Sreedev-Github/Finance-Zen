@@ -2,7 +2,7 @@ import React,{useEffect, useState} from "react";
 import "../../index.css";
 import { Link } from "react-router-dom";
 
-function Header({val1 = "Home", val2= "About", val3= "AddTransaction"}) {
+function Header() {
 
     const [navShow, setNavShow] = useState(false)
   //   const [navChange, setNavChange]= useState(false)
@@ -33,9 +33,9 @@ function Header({val1 = "Home", val2= "About", val3= "AddTransaction"}) {
         <ul
             className={`pb-5 text-lg md:sticky flex text-black/80 flex-col md:flex-row gap-10 bg-white absolute min-h-[40vh] left-0 ${navShow?"top-[4.4rem] opacity-100" : "top-[-100%] opacity-0"} md:opacity-100 transition-all duration-700 w-full justify-center items-center md:h-12 md:top-auto md:w-auto md:min-h-fit shadow-md md:shadow-none`}
           >
-            <li className="cursor-pointer"><a href="/user">{val1}</a></li>
-            <li className="cursor-pointer">{val2}</li>
-            <li className="cursor-pointer"><a href="/add-transaction">{val3}</a></li>
+            <li className="cursor-pointer"><a href="/">Home</a></li>
+            <li className="cursor-pointer">Dashboard</li>
+            <li className="cursor-pointer"><a href="/add-transaction">Add Transaction</a></li>
             <li className="cursor-pointer md:hidden"><a href="/login">Login</a></li>
           </ul>
         </div>

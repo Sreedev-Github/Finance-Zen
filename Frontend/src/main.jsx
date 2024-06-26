@@ -1,58 +1,60 @@
-import React from 'react'
+import React from 'react';
 import ReactDOM from 'react-dom/client'
-import './index.css'
-import { RouterProvider, createBrowserRouter } from 'react-router-dom'
-import App from './App'
-import {Button, Footer} from './components/index'
-import Home from './pages/Home'
-import User from './pages/User'
-import Signup from './pages/Signup'
-import Login from './pages/Login'
-import AddTransaction from './pages/AddTransaction'
-import EditTransaction from './pages/EditTransaction'
-
+import './index.css';
+import App from './App';
+import { Provider } from 'react-redux';
+import store from './store/store.js';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import Home from './pages/Home';
+import User from './pages/User';
+import Signup from './pages/Signup';
+import Login from './pages/Login';
+import AddTransaction from './pages/AddTransaction';
+import EditTransaction from './pages/EditTransaction';
+import ProtectedRoute from './utils/ProtectedRoute';
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <App/>,
+    path: '/',
+    element: <App />,
     children: [
+      { path: '/', element: <Home /> },
+      { path: '/signup', element: <Signup /> },
+      { path: '/login', element: <Login /> },
       {
-        path: "/",
-        element: <Home/>,
+        path: '/user',
+        element: (
+          <ProtectedRoute>
+            <User />
+          </ProtectedRoute>
+        ),
       },
       {
-        path: "/signup",
-        element: <Signup/>,
+        path: '/add-transaction',
+        element: (
+          <ProtectedRoute>
+            <AddTransaction />
+          </ProtectedRoute>
+        ),
       },
       {
-        path: "/user",
-        element: <User/>,
+        path: '/edit/:transactionType/:transactionId',
+        element: (
+          <ProtectedRoute>
+            <EditTransaction />
+          </ProtectedRoute>
+        ),
       },
-      {
-        path: "/add-transaction",
-        element: <AddTransaction/>,
-      },
-      {
-        path: "/login",
-        element: <Login/>,
-      },
-      {
-        path: "/edit/:transactionType/:transactionId",
-        element: <EditTransaction />
-      },
-      {
-        path: "/footer",
-        element: <Footer/>
-      },
-
-    ]
-  }
-])
-
+    ],
+  },
+]);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <RouterProvider router = {router}/>
-  </React.StrictMode>,
-)
+    <Provider store={store}>
+      <RouterProvider router={router}>
+        <App />
+      </RouterProvider>
+    </Provider>
+  </React.StrictMode>
+);
