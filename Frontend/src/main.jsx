@@ -12,6 +12,7 @@ import Login from './pages/Login';
 import AddTransaction from './pages/AddTransaction';
 import EditTransaction from './pages/EditTransaction';
 import ProtectedRoute from './utils/ProtectedRoute';
+import { AuthProvider } from './utils/AuthProvider.jsx';
 
 const router = createBrowserRouter([
   {
@@ -53,7 +54,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <Provider store={store}>
       <RouterProvider router={router}>
+        <AuthProvider>
         <App />
+        </AuthProvider>
       </RouterProvider>
     </Provider>
   </React.StrictMode>

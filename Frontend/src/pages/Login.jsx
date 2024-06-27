@@ -18,14 +18,14 @@ function Login() {
       // Display alert and set timer to hide it after 2 seconds
       setShowAlert(true);
       sessionStorage.setItem("alertShown", "true");
-
+  
       const timeout = setTimeout(() => {
         setShowAlert(false);
       }, 3000);
-
+  
       return () => clearTimeout(timeout);
     }
-  }, [location.state]);
+  }, [location.state.alertMessage]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,13 +37,13 @@ function Login() {
         },
         body: JSON.stringify({ username, password }),
       });
-
+  
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem("accessToken", data.data.accessToken);
         localStorage.setItem("refreshToken", data.data.refreshToken);
-        console.log(data.data.user);
         dispatch(authLogin(data.data.user));
+        // Move navigation after setting localStorage items
         navigate("/user");
       } else {
         console.error("Login failed");
@@ -52,9 +52,9 @@ function Login() {
       console.error("Error:", error);
     }
   };
-
   const handleCloseAlert = () => {
     setShowAlert(false);
+    sessionStorage.removeItem("alertShown"); // Clear sessionStorage item
   };
 
   return (
