@@ -31,7 +31,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: '/add-transaction',
+        path: '/add-finance',
         element: (
           <ProtectedRoute>
             <AddTransaction />
@@ -53,11 +53,11 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <Provider store={store}>
-      <RouterProvider router={router}>
-        <AuthProvider>
-        <App />
-        </AuthProvider>
-      </RouterProvider>
+      <AuthProvider>
+        <RouterProvider router={router}>
+          <App />
+        </RouterProvider>
+      </AuthProvider>
     </Provider>
   </React.StrictMode>
 );

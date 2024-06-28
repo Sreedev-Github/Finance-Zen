@@ -2,13 +2,18 @@ import React, { useEffect, useState } from "react";
 import "../../index.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../../store/authSlice"; // Ensure the correct import path
 
 function Header() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const authStatus = useSelector((state) => state.status);
-
+  const authStatus = useSelector((state) => state.status); // Adjust selector as per your state structure
   const [navShow, setNavShow] = useState(false);
+
+  useEffect(() => {
+    // Perform any side effects or actions when authStatus changes
+    console.log("Auth status changed:", authStatus);
+  }, [authStatus]);
 
   const handleLogout = async (e) => {
     e.preventDefault();
@@ -20,7 +25,6 @@ function Header() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ username, password }),
         }
       );
 
@@ -50,45 +54,42 @@ function Header() {
             } md:opacity-100 transition-all duration-700 w-full justify-center items-center md:h-12 md:top-auto md:w-auto md:min-h-fit shadow-md md:shadow-none`}
           >
             <li className="cursor-pointer">
-              <a href="/">Home</a>
+              <Link to="/">Home</Link>
             </li>
             <li className="cursor-pointer">
-              <a href="/user">Dashboard</a>
+              <Link to="/user">Dashboard</Link>
             </li>
             <li className="cursor-pointer">
-              <a href="/add-transaction">Add Transaction</a>
+              <Link to="/add-finance">Add Finance</Link>
             </li>
-            <li className="cursor-pointer md:hidden">
-              <a href="/login">Login</a>
-            </li>
+            {!authStatus && (
+              <li className="cursor-pointer md:hidden">
+                <Link to="/login">Login</Link>
+              </li>
+            )}
           </ul>
         </div>
         <div className="flex gap-8">
-          {!authStatus && (
+          {!authStatus ? (
             <div className="flex">
-              <Link to={"/login"}>
+              <Link to="/login">
                 <button className="z-20 text-lg text-black/80 px-4 md:block hidden">
                   Login
                 </button>
               </Link>
-              <Link to={"/signup"}>
+              <Link to="/signup">
                 <button className="z-20 text-lg text-black/80 px-4 md:block hidden">
                   Signup
                 </button>
               </Link>
             </div>
-          )}
-          {authStatus && (
-            <Link to={""}>
-              <button
-                onClick={(e) => {
-                  handleLogout;
-                }}
-                className="z-20 text-lg text-black/80 px-4 md:block hidden"
-              >
-                Logout
-              </button>
-            </Link>
+          ) : (
+            <button
+              onClick={handleLogout}
+              className="z-20 text-lg text-black/80 px-4 md:block hidden"
+            >
+              Logout
+            </button>
           )}
           <label className="hamburger md:hidden z-20">
             <input type="checkbox" onChange={() => setNavShow(!navShow)} />

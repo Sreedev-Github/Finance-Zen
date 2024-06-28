@@ -4,7 +4,8 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
@@ -12,6 +13,7 @@ export const AuthProvider = ({ children }) => {
         if (!token) {
           console.error("No access token found");
           setUser(null);
+          setLoading(false);
           return;
         }
 
@@ -25,7 +27,6 @@ export const AuthProvider = ({ children }) => {
 
         if (response.ok) {
           const data = await response.json();
-          console.log(data);
           setUser(data.data);
         } else {
           console.error("Failed to fetch user data, status:", response.status);
@@ -34,6 +35,8 @@ export const AuthProvider = ({ children }) => {
       } catch (error) {
         console.error('Error fetching current user:', error);
         setUser(null);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -41,7 +44,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, setUser }}>
+    <AuthContext.Provider value={{ user, loading }}>
       {children}
     </AuthContext.Provider>
   );

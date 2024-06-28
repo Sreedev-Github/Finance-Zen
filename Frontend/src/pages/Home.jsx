@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import splitStringUsingRegex from "../utils/splitStringUsingRegex";
 import { Button, Card } from "../components/index";
 import mockupImage from "../assets/mockup.jpg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Home() {
   const heroHeading = "Your New Financial Sidekick";
@@ -16,6 +16,13 @@ function Home() {
     hidden: { opacity: 0 },
     visible: { opacity: 1 },
   };
+  const navigate = useNavigate();
+
+  const handleClick = (e) =>{
+    e.preventDefault()
+
+    navigate("/login", {state: {alertMessage: null}})
+  }
 
   return (
     <>
@@ -55,7 +62,7 @@ function Home() {
             ))}
           </motion.p>
 
-          <Link to="/login"><Button btnText="Get Started" /></Link>
+          <Link to={"/login"} onClick={(e)=> {handleClick}}><Button btnText="Get Started" /></Link>
         </div>
       </div>
 

@@ -1,13 +1,33 @@
-import React from 'react';
-import { useAuth } from './AuthProvider';
-import { Navigate, useLocation } from 'react-router-dom';
+import React, { useEffect } from "react";
+import { useAuth } from "./AuthProvider";
+import { Navigate, useLocation } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { login as authLogin } from '../store/authSlice';
 
 const ProtectedRoute = ({ children }) => {
-  const { user } = useAuth() || {}; // Ensure a default object if useAuth() returns null or undefined
+  const { user, loading } = useAuth();
   const location = useLocation();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    console.log("ProtectedRoute rendered. User state:", user);
+    if (user) {
+      dispatch(authLogin(user));
+    }
+  }, [user, dispatch]);
+
+  if (loading) {
+    return <div>Loading...</div>; // or any loading spinner/component
+  }
 
   if (!user) {
-    return <Navigate to="/login" replace state={{ from: location, alertMessage: 'Please login to your account' }} />;
+    return (
+      <Navigate
+        to="/login"
+        replace
+        state={{ from: location, alertMessage: "Please login to your account" }}
+      />
+    );
   }
 
   return children;

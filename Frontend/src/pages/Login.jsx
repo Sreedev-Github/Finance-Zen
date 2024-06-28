@@ -1,31 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "../components";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useDispatch } from 'react-redux'
-import {login as authLogin} from '../store/authSlice'
+import { useDispatch } from 'react-redux';
+import { login as authLogin } from '../store/authSlice';
 
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const [showAlert, setShowAlert] = useState(false);
 
   useEffect(() => {
     const alertShown = sessionStorage.getItem("alertShown");
-    if (location.state && location.state.alertMessage && !alertShown) {
+    const alertMessage = location.state?.alertMessage || null; // Provide a default value
+    if (alertMessage && !alertShown) {
       // Display alert and set timer to hide it after 2 seconds
       setShowAlert(true);
       sessionStorage.setItem("alertShown", "true");
-  
+
       const timeout = setTimeout(() => {
         setShowAlert(false);
       }, 3000);
-  
+
       return () => clearTimeout(timeout);
     }
-  }, [location.state.alertMessage]);
+  }, [location.state]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,13 +38,12 @@ function Login() {
         },
         body: JSON.stringify({ username, password }),
       });
-  
+
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem("accessToken", data.data.accessToken);
         localStorage.setItem("refreshToken", data.data.refreshToken);
         dispatch(authLogin(data.data.user));
-        // Move navigation after setting localStorage items
         navigate("/user");
       } else {
         console.error("Login failed");
@@ -52,9 +52,9 @@ function Login() {
       console.error("Error:", error);
     }
   };
+
   const handleCloseAlert = () => {
     setShowAlert(false);
-    sessionStorage.removeItem("alertShown"); // Clear sessionStorage item
   };
 
   return (
