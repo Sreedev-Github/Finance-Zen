@@ -5,6 +5,7 @@ import cors from "cors";
 const app = express();
 
 app.use(cors({
+    origin: "https://finance-zen.vercel.app",
     // origin: "https://finance-zen.vercel.app",
     origin: "http://localhost:5173",
     credentials: true,
