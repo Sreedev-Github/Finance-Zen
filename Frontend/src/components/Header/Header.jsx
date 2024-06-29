@@ -2,13 +2,15 @@ import React, { useEffect, useState } from "react";
 import "../../index.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../../store/authSlice"; // Ensure the correct import path
+import { logout } from "../../store/authSlice";
+import { useAuth } from "../../utils/AuthProvider";
 
 function Header() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const authStatus = useSelector((state) => state.status); // Adjust selector as per your state structure
   const [navShow, setNavShow] = useState(false);
+  const { setUser } = useAuth();
 
   useEffect(() => {
     // Perform any side effects or actions when authStatus changes
@@ -38,6 +40,7 @@ function Header() {
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
         dispatch(logout());
+        setUser(null);
         navigate("/login");
       } else {
         console.error("Logout failed");
