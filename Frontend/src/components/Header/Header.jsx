@@ -17,6 +17,11 @@ function Header() {
 
   const handleLogout = async (e) => {
     e.preventDefault();
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      console.error("No access token found");
+      return;
+    }
     try {
       const response = await fetch(
         `${import.meta.env.VITE_DB_URL}/user/logout`,
@@ -24,11 +29,14 @@ function Header() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
       if (response.ok) {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
         dispatch(logout());
         navigate("/login");
       } else {

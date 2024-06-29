@@ -3,6 +3,7 @@ import { Button } from "../components";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from 'react-redux';
 import { login as authLogin } from '../store/authSlice';
+import { useAuth } from "../utils/AuthProvider";
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -10,13 +11,13 @@ function Login() {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { setUser } = useAuth(); // Get setUser from AuthProvider
   const [showAlert, setShowAlert] = useState(false);
 
   useEffect(() => {
     const alertShown = sessionStorage.getItem("alertShown");
-    const alertMessage = location.state?.alertMessage || null; // Provide a default value
+    const alertMessage = location.state?.alertMessage || null;
     if (alertMessage && !alertShown) {
-      // Display alert and set timer to hide it after 2 seconds
       setShowAlert(true);
       sessionStorage.setItem("alertShown", "true");
 
@@ -44,6 +45,8 @@ function Login() {
         localStorage.setItem("accessToken", data.data.accessToken);
         localStorage.setItem("refreshToken", data.data.refreshToken);
         dispatch(authLogin(data.data.user));
+        setUser(data.data.user); // Set user in context immediately
+        console.log("User logged in");
         navigate("/user");
       } else {
         console.error("Login failed");

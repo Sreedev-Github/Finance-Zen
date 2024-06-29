@@ -13,6 +13,7 @@ const ProtectedRoute = ({ children }) => {
     console.log("ProtectedRoute rendered. User state:", user);
     if (user) {
       dispatch(authLogin(user));
+      console.log("User found in protected route");
     }
   }, [user, dispatch]);
 
@@ -21,6 +22,7 @@ const ProtectedRoute = ({ children }) => {
   }
 
   if (!user) {
+    console.log("User not found in protected route");
     return (
       <Navigate
         to="/login"
