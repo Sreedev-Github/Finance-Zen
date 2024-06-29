@@ -45,7 +45,7 @@ function Login() {
         localStorage.setItem("accessToken", data.data.accessToken);
         localStorage.setItem("refreshToken", data.data.refreshToken);
         dispatch(authLogin(data.data.user));
-        setUser(data.data.user); // Set user in context immediately
+        setUser(data.data.user);
         console.log("User logged in");
         navigate("/user");
       } else {
