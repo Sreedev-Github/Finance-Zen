@@ -5,7 +5,8 @@ import cors from "cors";
 const app = express();
 
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: "https://finance-zen.vercel.app",
+    headers: ["Content-Type"],
     credentials: true,
 }))
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
