@@ -4,9 +4,19 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { Saving } from "../models/saving.model.js";
 
 const addSaving = asyncHandler(async (req, res) => {
-  const { amount, method, category, description = "", date = Date.now() } = req.body;
+  const {
+    amount,
+    method,
+    category,
+    description = "",
+    date = Date.now(),
+  } = req.body;
 
-  if ([amount, method, category, date].some(field => !field || (typeof field === 'string' && !field.trim()))) {
+  if (
+    [amount, method, category, date].some(
+      (field) => !field || (typeof field === "string" && !field.trim())
+    )
+  ) {
     throw new ApiError(400, "All fields are required");
   }
 
@@ -34,23 +44,24 @@ const addSaving = asyncHandler(async (req, res) => {
 });
 
 // get saving
-const getSaving = asyncHandler(async(req, res)=>{
-  if(!req.params.savingId){
+const getSaving = asyncHandler(async (req, res) => {
+  if (!req.params.savingId) {
     throw new ApiError(400, "Saving Id is not provided");
   }
   const { savingId } = req.params;
 
-  const saving = await Saving.findById(savingId)
+  const saving = await Saving.findById(savingId);
 
-  if(!saving){
+  if (!saving) {
     throw new ApiError(404, "No saving found with the provided Id");
   }
 
   return res
-  .status(200)
-  .json(new ApiResponse(200, saving, "Your saving has been fetched successfully"))
-
-})
+    .status(200)
+    .json(
+      new ApiResponse(200, saving, "Your saving has been fetched successfully")
+    );
+});
 
 // update saving
 const updateSaving = asyncHandler(async (req, res) => {
@@ -107,7 +118,6 @@ const deleteSaving = asyncHandler(async (req, res) => {
   const { savingId } = req.params;
 
   const deletedSaving = await Saving.findByIdAndDelete(savingId);
-
 
   if (!deletedSaving) {
     throw new ApiError(

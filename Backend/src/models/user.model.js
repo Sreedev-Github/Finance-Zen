@@ -14,11 +14,10 @@ const userSchema = new Schema(
     },
     email: {
       type: String,
-      required: true,
-      unique: true,
+      // required: true,
+      // unique: true,
       lowercase: true,
       trim: true,
-      index: true,
     },
     password: {
       type: String,
@@ -61,6 +60,9 @@ const userSchema = new Schema(
   },
   { timestamps: true }
 );
+
+// Define a sparse index for email to ensure uniqueness only when the field is present
+userSchema.index({ email: 1 }, { unique: true, sparse: true });
 
 // Pasword hashing
 userSchema.pre("save", async function (next) {

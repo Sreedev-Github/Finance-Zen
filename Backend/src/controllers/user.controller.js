@@ -10,25 +10,19 @@ import mongoose from "mongoose";
 
 // Register User
 const registerUser = asyncHandler(async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, password } = req.body;
 
-  if ([username, email, password].some((field) => field?.trim() === "")) {
-    throw new ApiError(400, "All fields are required");
+  if (!username?.trim() || !password?.trim()) {
+    throw new ApiError(400, "Username and password are required");
   }
 
-  const checkExisitingUser = await User.findOne({
-    $or: [{ username }, { email }],
-  });
+  const checkExistingUser = await User.findOne({ username });
 
-  if (checkExisitingUser) {
+  if (checkExistingUser) {
     throw new ApiError(409, "User already exists in our website");
   }
 
-  const user = await User.create({
-    email,
-    password,
-    username,
-  });
+  const user = await User.create({ username, password });
 
   const createdUser = await User.findById(user?._id).select(
     "-password -refreshToken"
@@ -40,7 +34,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, createdUser, "User Created succesfully"));
+    .json(new ApiResponse(200, createdUser, "User Created successfully"));
 });
 
 // Generate Access and Refresh Tokens
@@ -75,17 +69,13 @@ const generateAccessAndRefreshTokens = async (userId) => {
 // TODO:- Prevent the user from loggin in while he is already logged in.
 
 const loginUser = asyncHandler(async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, password } = req.body;
 
-  if (!(username || email)) {
-    throw new ApiError(400, "Username or email is required");
+  if (!username || !password) {
+    throw new ApiError(400, "Username and password are required");
   }
 
-  // Search and validate User
-
-  const user = await User.findOne({
-    $or: [{ email }, { username }],
-  });
+  const user = await User.findOne({ username });
 
   if (!user) {
     throw new ApiError(404, "User not found!");
@@ -97,7 +87,6 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Invalid credentials");
   }
 
-  //   Generate tokens
   const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
     user._id
   );
@@ -106,12 +95,11 @@ const loginUser = asyncHandler(async (req, res) => {
     "-password -refreshToken"
   );
 
-  // Cookie options
   const options = {
     httpOnly: true,
     secure: true,
-    sameSite: 'Lax',
-  }
+    sameSite: "Lax",
+  };
 
   return res
     .status(200)
@@ -325,58 +313,72 @@ const getTransactionsForLastNDays = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, transactions, "Transactions fetched successfully"));
+    .json(
+      new ApiResponse(200, transactions, "Transactions fetched successfully")
+    );
 });
-
 
 // Fetch transactions for the last n days
-const getSpecificTransactionsForLastNTransactions = asyncHandler(async (req, res) => {
-  const { count } = req.params;
-  const {type} = req.params;
+const getSpecificTransactionsForLastNTransactions = asyncHandler(
+  async (req, res) => {
+    const { count } = req.params;
+    const { type } = req.params;
 
-  if (!count || isNaN(count) || count < 1) {
-    throw new ApiError(400, "Invalid number of transactions provided");
+    if (!count || isNaN(count) || count < 1) {
+      throw new ApiError(400, "Invalid number of transactions provided");
+    }
+
+    if (!type) {
+      throw new ApiError(400, "Please provide a type of transaction");
+    }
+
+    const numberOfTransactions = parseInt(count);
+
+    // Fetching the last n expenses
+    if (type === "expense") {
+      const expenses = await Expense.find({ user: req.user._id })
+        .sort({ date: -1 })
+        .limit(numberOfTransactions)
+        .select("date amount -_id");
+
+      return res
+        .status(200)
+        .json(
+          new ApiResponse(
+            200,
+            expenses.reverse(),
+            "Expenses fetched successfully"
+          )
+        );
+    }
+
+    // Fetching the last n incomes
+    if (type.lowercase() === "income") {
+      const incomes = await Income.find({ user: req.user._id })
+        .sort({ date: -1 })
+        .limit(numberOfTransactions)
+        .select("date amount -_id");
+
+      return res
+        .status(200)
+        .json(new ApiResponse(200, incomes, "Incomes fetched successfully"));
+    }
+
+    // Fetching the last n savings
+    if (type.lowercase() === "saving") {
+      const savings = await Saving.find({ user: req.user._id })
+        .sort({ date: -1 })
+        .limit(numberOfTransactions)
+        .select("date amount -_id");
+
+      return res
+        .status(200)
+        .json(new ApiResponse(200, savings, "Savings fetched successfully"));
+    }
+
+    throw new ApiError(500, "Something went wrong!");
   }
-
-  if (!type) {
-    throw new ApiError(400, "Please provide a type of transaction");
-  }
-
-  const numberOfTransactions = parseInt(count);
-
-  // Fetching the last n expenses
-  if(type === "expense"){
-    const expenses = await Expense.find({ user: req.user._id })
-    .sort({ date: -1 })
-    .limit(numberOfTransactions)
-    .select("date amount -_id");
-
-    return res.status(200).json(new ApiResponse(200, expenses.reverse(), "Expenses fetched successfully"));
-  }
-
-  // Fetching the last n incomes
-  if(type.lowercase() === "income"){
-    const incomes = await Income.find({ user: req.user._id })
-      .sort({ date: -1 })
-      .limit(numberOfTransactions)
-      .select("date amount -_id");
-
-      return res.status(200).json(new ApiResponse(200, incomes, "Incomes fetched successfully"));
-  }
-
-  // Fetching the last n savings
-  if(type.lowercase() === "saving"){
-    const savings = await Saving.find({ user: req.user._id })
-    .sort({ date: -1 })
-    .limit(numberOfTransactions)
-    .select("date amount -_id");
-
-    return res.status(200).json(new ApiResponse(200, savings, "Savings fetched successfully"));
-  }
-
-  throw new ApiError(500, "Something went wrong!");
-});
-
+);
 
 const getAllTransactionsInOrder = asyncHandler(async (req, res) => {
   let { count } = req.params;
@@ -409,15 +411,26 @@ const getAllTransactionsInOrder = asyncHandler(async (req, res) => {
 
   // Combine and sort by date
   const transactions = [
-    ...expenses.map((transaction) => ({ type: 'Expense', ...transaction._doc })),
-    ...incomes.map((transaction) => ({ type: 'Income', ...transaction._doc })),
-    ...savings.map((transaction) => ({ type: 'Saving', ...transaction._doc })),
+    ...expenses.map((transaction) => ({
+      type: "Expense",
+      ...transaction._doc,
+    })),
+    ...incomes.map((transaction) => ({ type: "Income", ...transaction._doc })),
+    ...savings.map((transaction) => ({ type: "Saving", ...transaction._doc })),
   ].sort((a, b) => b.date - a.date);
 
   // Limit the result to the last n transactions
   const limitedTransactions = transactions.slice(0, numberOfTransactions);
 
-  return res.status(200).json(new ApiResponse(200, limitedTransactions, "Transactions fetched successfully"));
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        limitedTransactions,
+        "Transactions fetched successfully"
+      )
+    );
 });
 
 export {
@@ -430,9 +443,8 @@ export {
   getUserFinancialData,
   getTransactionsForLastNDays,
   getSpecificTransactionsForLastNTransactions,
-  getAllTransactionsInOrder
+  getAllTransactionsInOrder,
 };
-
 
 // const getTransactionsForLastNTransactions = asyncHandler(async (req, res) => {
 //   const { count } = req.params;
