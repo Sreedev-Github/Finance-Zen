@@ -130,12 +130,10 @@ function BarChart() {
           }),
           datasets: [
             {
-              label: "Count",
+              label: "Amount",
               data: barData.map((data) => data.amount),
               backgroundColor: [
-                "rgba(43, 63, 229, 0.8)",
-                "rgba(250, 192, 19, 0.8)",
-                "rgba(253, 135, 135, 0.8)",
+                "rgba(220, 53, 69, 0.8)",
               ],
               borderRadius: 5,
             },

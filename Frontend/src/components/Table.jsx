@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import "flowbite";
 
 function Table() {
   const navigate = useNavigate();
-
+  const location = useLocation();
   const [tableData, setTableData] = useState({});
 
   const fetchUserData = async () => {
@@ -38,6 +38,44 @@ function Table() {
     }
   };
 
+  const deleteTransaction = async (dataType, dataId) => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      console.error("No access token found");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_DB_URL
+        }/${dataType}/delete-${dataType}/${dataId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        navigate("/user", {
+          state: {
+            alertMessage: `${dataType} has been deleted successfully`,
+            alertType: "success",
+          },
+        });
+        window.location.reload();
+        return;
+      } else {
+        console.error("Failed to fetch data");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
   useEffect(() => {
     fetchUserData();
   }, []);
@@ -45,6 +83,22 @@ function Table() {
   const handleEditClick = (e, dataId, dataType) => {
     e.preventDefault();
     navigate(`/edit/${dataType.toLowerCase()}/${dataId}`);
+  };
+
+  const handleDeleteClick = (e, dataId, dataType) => {
+    e.preventDefault()
+    const response = confirm(
+      `Are you sure you want to delete your ${dataType}`
+    );
+    if (response) {
+      deleteTransaction(dataType.toLowerCase(), dataId);
+      navigate("/user", {
+        state: {
+          alertMessage: `${dataType} has been deleted successfully`,
+          alertType: "success",
+        },
+      });
+    } else return;
   };
 
   return (
@@ -233,14 +287,16 @@ function Table() {
               Category
             </th>
             <th scope="col" className="px-6 py-3">
-              Action
+              Edit transaction
+            </th>
+            <th scope="col" className="px-6 py-3">
+              Delete transaction
             </th>
           </tr>
         </thead>
         <tbody>
           {tableData.data &&
             tableData.data.map((data, index) => {
-              
               const date = new Date(data.date);
               const formattedDate = `${date
                 .getDate()
@@ -249,7 +305,10 @@ function Table() {
                 .toString()
                 .padStart(2, "0")}-${date.getFullYear()}`;
               return (
-                <tr key={index} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                <tr
+                  key={index}
+                  className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                >
                   <th
                     scope="row"
                     className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
@@ -261,10 +320,10 @@ function Table() {
                     <span
                       className={`${
                         data.type === "Expense"
-                          ? "bg-red-400"
+                          ? "bg-expense-red"
                           : data.type === "Income"
-                          ? "bg-blue-400"
-                          : "bg-green-400"
+                          ? "bg-income-green"
+                          : "bg-saving-blue"
                       } text-white rounded-full p-1`}
                     >
                       {data.type}
@@ -280,12 +339,20 @@ function Table() {
                       Edit
                     </Link>
                   </td>
+                  <td className="px-6 py-4">
+                    <Link
+                      onClick={(e) => handleDeleteClick(e, data._id, data.type)}
+                      className="cursor-pointer font-medium text-red-600 dark:text-blue-500 hover:underline"
+                    >
+                      Delete
+                    </Link>
+                  </td>
                 </tr>
               );
             })}
         </tbody>
       </table>
-      <nav
+      {/* <nav
         className="flex items-center flex-column flex-wrap md:flex-row justify-between pt-4 mb-4"
         aria-label="Table navigation"
       >
@@ -358,7 +425,7 @@ function Table() {
             </a>
           </li>
         </ul>
-      </nav>
+      </nav> */}
     </div>
   );
 }

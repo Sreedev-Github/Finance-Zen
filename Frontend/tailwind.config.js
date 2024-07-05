@@ -10,7 +10,10 @@ export default {
   theme: {
     extend: { 
       colors: {
-      "twitter-blue": "#1DA1F2"
+      "twitter-blue": "#1DA1F2",
+      "expense-red": "#dc3545",
+      "saving-blue": "#007bff",
+      "income-green": "#28a745",
       },
     },
   },

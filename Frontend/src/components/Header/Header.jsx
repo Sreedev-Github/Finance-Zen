@@ -53,14 +53,14 @@ function Header() {
   return (
     <>
       <nav
-        className={`flex justify-between w-full mx-auto mt-0 z-10 md:w-3/4 md:mt-6 p-4 rounded-md bg-white shadow-md text-sm`}
+        className={`flex justify-between w-full mx-auto mt-0 z-40 md:w-3/4 md:mt-6 p-4 rounded-md bg-white shadow-md text-sm`}
       >
-        <div className="font-bold text-lg z-20">
+        <div className="font-bold text-lg z-50">
           <Link to="/">Finance Zen</Link>
         </div>
         <div>
           <ul
-            className={`pb-5 text-lg md:sticky flex text-black/80 flex-col md:flex-row gap-10 bg-white absolute min-h-[40vh] left-0 ${
+            className={`z-50 pb-5 text-lg md:sticky flex text-black/80 flex-col md:flex-row gap-10 bg-white absolute min-h-[40vh] left-0 ${
               navShow ? "top-[4.4rem] opacity-100" : "top-[-100%] opacity-0"
             } md:opacity-100 transition-all duration-700 w-full justify-center items-center md:h-12 md:top-auto md:w-auto md:min-h-fit shadow-md md:shadow-none`}
           >
@@ -74,8 +74,18 @@ function Header() {
               <Link to="/add-finance">Add Finance</Link>
             </li>
             {!authStatus && (
+              <>
               <li className="cursor-pointer md:hidden">
                 <Link to="/login">Login</Link>
+              </li>
+              <li className="cursor-pointer md:hidden">
+              <Link to="/signup">Sign Up</Link>
+            </li>
+            </>
+            )}
+             {authStatus && (
+              <li onClick={handleLogout} className="cursor-pointer md:hidden">
+                <Link to="/login">Logout</Link>
               </li>
             )}
           </ul>

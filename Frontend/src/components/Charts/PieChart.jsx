@@ -58,9 +58,9 @@ function PieChart({pieData}) {
               label: "Amount",
               data: pieChartData.map((data) => data.amount),
               backgroundColor: [
-                "rgba(43, 63, 229, 0.8)",
-                "rgba(250, 192, 19, 0.8)",
-                "rgba(253, 135, 135, 0.8)",
+                "rgba(220, 53, 69, 0.8)",
+                "rgba(40, 167, 69, 0.8)",
+                "rgba(0, 123, 255, 0.8)",
               ],
             },
           ],

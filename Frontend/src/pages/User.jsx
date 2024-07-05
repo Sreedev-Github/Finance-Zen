@@ -113,15 +113,15 @@ function User() {
       )}
       {/* Text-Data */}
       <div className="flex w-full justify-around my-10">
-        <div className="bg-blue-400 text-white rounded-xl text-center p-4 md:p-8 lg:px-20 md:px-14">
+        <div className="bg-expense-red text-white rounded-xl text-center p-4 md:p-8 lg:px-20 md:px-14">
           <p>Expense</p>
           <p className="italic">₹ {financialData.totalExpense}</p>
         </div>
-        <div className="bg-blue-400 text-white rounded-xl text-center p-4 md:p-8 lg:px-20 md:px-14">
+        <div className="bg-income-green text-white rounded-xl text-center p-4 md:p-8 lg:px-20 md:px-14">
           <p>Income</p>
           <p>₹ {financialData.totalIncome}</p>
         </div>
-        <div className="bg-blue-400 text-white rounded-xl text-center p-4 md:p-8 lg:px-20 md:px-14">
+        <div className="bg-saving-blue text-white rounded-xl text-center p-4 md:p-8 lg:px-20 md:px-14">
           <p>Saving</p>
           <p>₹ {financialData.totalSaving}</p>
         </div>
