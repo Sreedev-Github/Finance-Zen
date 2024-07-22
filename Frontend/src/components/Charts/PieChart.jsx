@@ -62,6 +62,7 @@ function PieChart({pieData}) {
                 "rgba(40, 167, 69, 0.8)",
                 "rgba(0, 123, 255, 0.8)",
               ],
+              borderColor: "rgba(255, 255, 255, 1)"
             },
           ],
         }}

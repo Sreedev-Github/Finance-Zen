@@ -121,9 +121,72 @@ const deleteIncome = asyncHandler(async (req, res) => {
   .json(new ApiResponse(200, deletedIncome, "Your income has been deleted successully"));
 });
 
+const getAllIncomeInOrder = asyncHandler(async (req, res) => {
+  let { count } = req.params;
+
+  // Check if count is "all"
+  if (count === "all") {
+    // Fetching all expenses
+    let incomes = await Income.find({ user: req.user._id })
+      .sort({ date: -1 })
+      .select("date amount category _id")
+      .lean();
+
+    if (!incomes) {
+      throw new ApiError(
+        500,
+        "Something went wrong while trying to fetch expenses"
+      );
+    }
+
+    // Add type property to each expense
+    incomes = incomes.map((income) => ({ ...income, type: "Income" }));
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, incomes, "All transactions fetched successfully")
+      );
+  } else {
+    // Parse count as an integer
+    count = parseInt(count);
+
+    if (!count || isNaN(count) || count < 1) {
+      throw new ApiError(400, "Invalid number of transactions provided");
+    }
+
+    const numberOfIncome = parseInt(count);
+
+    // Fetching the last n expenses
+    let incomes = await Income.find({ user: req.user._id })
+      .sort({ date: -1 })
+      .limit(numberOfIncome)
+      .select("date amount category _id")
+      .lean();
+      // .lean() = This tells Mongoose to return plain JavaScript objects instead of Mongoose documents.
+
+    if (!incomes) {
+      throw new ApiError(
+        500,
+        "Something went wrong while trying to fetch Incomes"
+      );
+    }
+
+    // Add type property to each expense
+    incomes = incomes.map((income) => ({ ...income, type: "income" }));
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, incomes, "Transactions fetched successfully")
+      );
+  }
+});
+
 export {
     addIncome,
     updateIncome,
     deleteIncome,
-    getIncome
+    getIncome,
+    getAllIncomeInOrder
 }

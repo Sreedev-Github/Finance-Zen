@@ -47,25 +47,29 @@ const addExpense = asyncHandler(async (req, res) => {
     );
 });
 
-
 // get expense
-const getExpense = asyncHandler(async(req, res)=>{
-  if(!req.params.expenseId){
+const getExpense = asyncHandler(async (req, res) => {
+  if (!req.params.expenseId) {
     throw new ApiError(400, "Expense Id is not provided");
   }
   const { expenseId } = req.params;
 
-  const expense = await Expense.findById(expenseId)
+  const expense = await Expense.findById(expenseId);
 
-  if(!expense){
+  if (!expense) {
     throw new ApiError(404, "No expense found with the provided Id");
   }
 
   return res
-  .status(200)
-  .json(new ApiResponse(200, expense, "Your expense has been fetched successfully"))
-
-})
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        expense,
+        "Your expense has been fetched successfully"
+      )
+    );
+});
 
 // update expense
 const updateExpense = asyncHandler(async (req, res) => {
@@ -141,13 +145,13 @@ const deleteExpense = asyncHandler(async (req, res) => {
     );
 });
 
-const highestExpenses = asyncHandler(async(req, res)=>{
+const highestExpenses = asyncHandler(async (req, res) => {
   const topExpenses = await Expense.find({ user: req.user._id })
     .sort({ amount: -1 })
     .limit(3)
     .select("date amount category -_id");
 
-    return res
+  return res
     .status(200)
     .json(
       new ApiResponse(
@@ -156,6 +160,75 @@ const highestExpenses = asyncHandler(async(req, res)=>{
         "Your top expenses has been fetched successully"
       )
     );
-})
+});
 
-export { addExpense, updateExpense, deleteExpense, highestExpenses, getExpense };
+const getAllExpenseInOrder = asyncHandler(async (req, res) => {
+  let { count } = req.params;
+
+  // Check if count is "all"
+  if (count === "all") {
+    // Fetching all expenses
+    let expenses = await Expense.find({ user: req.user._id })
+      .sort({ date: -1 })
+      .select("date amount category _id")
+      .lean();
+
+    if (!expenses) {
+      throw new ApiError(
+        500,
+        "Something went wrong while trying to fetch expenses"
+      );
+    }
+
+    // Add type property to each expense
+    expenses = expenses.map((expense) => ({ ...expense, type: "Expense" }));
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, expenses, "All transactions fetched successfully")
+      );
+  } else {
+    // Parse count as an integer
+    count = parseInt(count);
+
+    if (!count || isNaN(count) || count < 1) {
+      throw new ApiError(400, "Invalid number of transactions provided");
+    }
+
+    const numberOfExpense = parseInt(count);
+
+    // Fetching the last n expenses
+    let expenses = await Expense.find({ user: req.user._id })
+      .sort({ date: -1 })
+      .limit(numberOfExpense)
+      .select("date amount category _id")
+      .lean();
+
+    if (!expenses) {
+      throw new ApiError(
+        500,
+        "Something went wrong while trying to fetch expenses"
+      );
+    }
+
+    // Add type property to each expense
+    expenses = expenses.map((expense) => ({ ...expense, type: "Expense" }));
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, expenses, "Transactions fetched successfully")
+      );
+  }
+});
+
+
+export {
+  addExpense,
+  updateExpense,
+  deleteExpense,
+  highestExpenses,
+  getExpense,
+  getAllExpenseInOrder,
+};

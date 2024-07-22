@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import DashboardLayout from "../components/DashboardLayout";
 import Table from "../components/Table";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import Button from "../components/Button";
 
 function User() {
   const [financialData, setFinancialData] = useState({
@@ -46,8 +47,8 @@ function User() {
         const storedAlertMessage = sessionStorage.getItem("alertMessage");
         if (storedAlertMessage) {
           setAlertMessage(storedAlertMessage);
-            setAlertType(sessionStorage.getItem("alertType") || "success");
-            setShowAlert(true);
+          setAlertType(sessionStorage.getItem("alertType") || "success");
+          setShowAlert(true);
           setTimeout(() => {
             setAlertMessage("");
             setAlertType("");
@@ -63,6 +64,12 @@ function User() {
     } catch (error) {
       console.error("Error:", error);
     }
+  };
+
+  const allTransactionBtn = (e) => {
+    e.preventDefault();
+    console.log("Button clicked!"); // Debugging statement
+    navigate("/all-transaction");
   };
 
   useEffect(() => {
@@ -102,7 +109,7 @@ function User() {
   };
 
   return (
-    <div>
+    <div className="mb-8">
       {showAlert && (
         <div className={`alert ${alertType} ${showAlert ? "show" : ""}`}>
           {alertMessage}
@@ -131,6 +138,11 @@ function User() {
       <DashboardLayout pieData={financialData} />
 
       <Table />
+      <div className="my-5 text-center">
+        <Link to={"/all-transaction"} onClick={allTransactionBtn}>
+          <Button btnText="See More" />
+        </Link>
+      </div>
     </div>
   );
 }

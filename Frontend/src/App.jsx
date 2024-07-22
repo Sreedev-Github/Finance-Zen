@@ -8,6 +8,7 @@ import Login from './pages/Login';
 import AddTransaction from './pages/AddTransaction';
 import EditTransaction from './pages/EditTransaction';
 import ProtectedRoute from './utils/ProtectedRoute';
+import AllTransactions from "./pages/AllTransactions";
 
 function App() {
   return (
@@ -38,6 +39,14 @@ function App() {
           element={
             <ProtectedRoute>
               <EditTransaction />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/all-transaction"
+          element={
+            <ProtectedRoute>
+              <AllTransactions/>
             </ProtectedRoute>
           }
         />

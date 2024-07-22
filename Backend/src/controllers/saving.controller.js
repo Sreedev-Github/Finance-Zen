@@ -137,4 +137,66 @@ const deleteSaving = asyncHandler(async (req, res) => {
     );
 });
 
-export { addSaving, updateSaving, deleteSaving, getSaving };
+const getAllSavingInOrder = asyncHandler(async (req, res) => {
+  let { count } = req.params;
+
+  // Check if count is "all"
+  if (count === "all") {
+    // Fetching all expenses
+    let savings = await Saving.find({ user: req.user._id })
+      .sort({ date: -1 })
+      .select("date amount category _id")
+      .lean();
+
+    if (!savings) {
+      throw new ApiError(
+        500,
+        "Something went wrong while trying to fetch expenses"
+      );
+    }
+
+    // Add type property to each expense
+    savings = savings.map((saving) => ({ ...saving, type: "Saving" }));
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, savings, "All transactions fetched successfully")
+      );
+  } else {
+    // Parse count as an integer
+    count = parseInt(count);
+
+    if (!count || isNaN(count) || count < 1) {
+      throw new ApiError(400, "Invalid number of transactions provided");
+    }
+
+    const numberOfSaving = parseInt(count);
+
+    // Fetching the last n expenses
+    let savings = await Saving.find({ user: req.user._id })
+      .sort({ date: -1 })
+      .limit(numberOfSaving)
+      .select("date amount category _id")
+      .lean();
+      // .lean() = This tells Mongoose to return plain JavaScript objects instead of Mongoose documents.
+
+    if (!savings) {
+      throw new ApiError(
+        500,
+        "Something went wrong while trying to fetch incomes"
+      );
+    }
+
+    // Add type property to each expense
+    savings = savings.map((saving) => ({ ...saving, type: "Saving" }));
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, savings, "Transactions fetched successfully")
+      );
+  }
+});
+
+export { addSaving, updateSaving, deleteSaving, getSaving, getAllSavingInOrder };

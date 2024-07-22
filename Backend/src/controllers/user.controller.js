@@ -383,30 +383,113 @@ const getSpecificTransactionsForLastNTransactions = asyncHandler(
 const getAllTransactionsInOrder = asyncHandler(async (req, res) => {
   let { count } = req.params;
 
-  count = parseInt(count);
+  // Check if count is "all"
+  if (count === "all") {
 
-  if (!count || isNaN(count) || count < 1) {
-    throw new ApiError(400, "Invalid number of transactions provided");
+    const page = req.query.p || 1
+    const transactionPerPage = 10
+
+    // Fetching all expenses
+    const expenses = await Expense.find({ user: req.user._id })
+      .sort({ date: -1 })
+      .select("date amount category _id");
+
+    // Fetching all incomes
+    const incomes = await Income.find({ user: req.user._id })
+      .sort({ date: -1 })
+      .select("date amount category _id");
+
+    // Fetching all savings
+    const savings = await Saving.find({ user: req.user._id })
+      .sort({ date: -1 })
+      .select("date amount category _id");
+
+    // Combine and sort by date
+    const transactions = [
+      ...expenses.map((transaction) => ({
+        type: "Expense",
+        ...transaction._doc,
+      })),
+      ...incomes.map((transaction) => ({ type: "Income", ...transaction._doc })),
+      ...savings.map((transaction) => ({ type: "Saving", ...transaction._doc })),
+    ].sort((a, b) => b.date - a.date);
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, transactions, "All transactions fetched successfully")
+      );
+  } else {
+    // Parse count as an integer
+    count = parseInt(count);
+
+    if (!count || isNaN(count) || count < 1) {
+      throw new ApiError(400, "Invalid number of transactions provided");
+    }
+
+    const numberOfTransactions = parseInt(count);
+
+    // Fetching the last n expenses
+    const expenses = await Expense.find({ user: req.user._id })
+      .sort({ date: -1 })
+      .limit(numberOfTransactions)
+      .select("date amount category _id");
+
+    // Fetching the last n incomes
+    const incomes = await Income.find({ user: req.user._id })
+      .sort({ date: -1 })
+      .limit(numberOfTransactions)
+      .select("date amount category _id");
+
+    // Fetching the last n savings
+    const savings = await Saving.find({ user: req.user._id })
+      .sort({ date: -1 })
+      .limit(numberOfTransactions)
+      .select("date amount category _id");
+
+    // Combine and sort by date
+    const transactions = [
+      ...expenses.map((transaction) => ({
+        type: "Expense",
+        ...transaction._doc,
+      })),
+      ...incomes.map((transaction) => ({ type: "Income", ...transaction._doc })),
+      ...savings.map((transaction) => ({ type: "Saving", ...transaction._doc })),
+    ].sort((a, b) => b.date - a.date);
+
+    // Limit the result to the last n transactions
+    const limitedTransactions = transactions.slice(0, numberOfTransactions);
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          limitedTransactions,
+          "Transactions fetched successfully"
+        )
+      );
   }
+});
 
-  const numberOfTransactions = parseInt(count);
+const getAllTransactionInPages = asyncHandler(async (req, res) => {
 
-  // Fetching the last n expenses
+  const page = parseInt(req.query.p) || 0;
+  const transactionPerPage = 3;
+
+  // Fetching all expenses
   const expenses = await Expense.find({ user: req.user._id })
     .sort({ date: -1 })
-    .limit(numberOfTransactions)
     .select("date amount category _id");
 
-  // Fetching the last n incomes
+  // Fetching all incomes
   const incomes = await Income.find({ user: req.user._id })
     .sort({ date: -1 })
-    .limit(numberOfTransactions)
     .select("date amount category _id");
 
-  // Fetching the last n savings
+  // Fetching all savings
   const savings = await Saving.find({ user: req.user._id })
     .sort({ date: -1 })
-    .limit(numberOfTransactions)
     .select("date amount category _id");
 
   // Combine and sort by date
@@ -417,19 +500,19 @@ const getAllTransactionsInOrder = asyncHandler(async (req, res) => {
     })),
     ...incomes.map((transaction) => ({ type: "Income", ...transaction._doc })),
     ...savings.map((transaction) => ({ type: "Saving", ...transaction._doc })),
-  ].sort((a, b) => b.date - a.date);
+  ].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  // Limit the result to the last n transactions
-  const limitedTransactions = transactions.slice(0, numberOfTransactions);
+  if (transactions.length <= (page * transactionPerPage)) {
+    throw new ApiError(400, "No data found!");
+  }
+
+  const pagedTransactions = transactions.slice(page * transactionPerPage);
+  const getFinalArray = pagedTransactions.slice(0, transactionPerPage);
 
   return res
     .status(200)
     .json(
-      new ApiResponse(
-        200,
-        limitedTransactions,
-        "Transactions fetched successfully"
-      )
+      new ApiResponse(200, getFinalArray, "All transactions fetched successfully")
     );
 });
 
@@ -444,46 +527,5 @@ export {
   getTransactionsForLastNDays,
   getSpecificTransactionsForLastNTransactions,
   getAllTransactionsInOrder,
+  getAllTransactionInPages
 };
-
-// const getTransactionsForLastNTransactions = asyncHandler(async (req, res) => {
-//   const { count } = req.params;
-
-//   if (!count || isNaN(count) || count < 1) {
-//     throw new ApiError(400, "Invalid number of transactions provided");
-//   }
-
-//   const numberOfTransactions = parseInt(count);
-
-//   // Fetching the last n expenses
-//   const expenses = await Expense.find({ user: req.user._id })
-//     .sort({ date: -1 })
-//     .limit(numberOfTransactions)
-//     .select("date amount -_id");
-
-//   // Fetching the last n incomes
-//   const incomes = await Income.find({ user: req.user._id })
-//     .sort({ date: -1 })
-//     .limit(numberOfTransactions)
-//     .select("date amount -_id");
-
-//   // Fetching the last n savings
-//   const savings = await Saving.find({ user: req.user._id })
-//     .sort({ date: -1 })
-//     .limit(numberOfTransactions)
-//     .select("date amount -_id");
-
-//   // Combine and sort by date
-//   const transactions = [
-//     ...expenses.map((transaction) => ({ type: 'expense', ...transaction._doc })),
-//     ...incomes.map((transaction) => ({ type: 'income', ...transaction._doc })),
-//     ...savings.map((transaction) => ({ type: 'saving', ...transaction._doc })),
-//   ].sort((a, b) => b.date - a.date);
-
-//   // Limit the result to the last n transactions
-//   const limitedTransactions = transactions.slice(0, numberOfTransactions);
-
-//   return res.status(200).json(new ApiResponse(200, limitedTransactions, "Transactions fetched successfully"));
-// });
-
-// export default getTransactionsForLastNTransactions;
