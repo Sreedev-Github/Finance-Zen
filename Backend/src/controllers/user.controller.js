@@ -473,34 +473,60 @@ const getAllTransactionsInOrder = asyncHandler(async (req, res) => {
 });
 
 const getAllTransactionInPages = asyncHandler(async (req, res) => {
-
   const page = parseInt(req.query.p) || 0;
-  const transactionPerPage = 3;
+  const transactionPerPage = 6;
+  const transactionType = req.query.type; // Get the transaction type from the query string
 
-  // Fetching all expenses
-  const expenses = await Expense.find({ user: req.user._id })
-    .sort({ date: -1 })
-    .select("date amount category _id");
+  let transactions = [];
 
-  // Fetching all incomes
-  const incomes = await Income.find({ user: req.user._id })
-    .sort({ date: -1 })
-    .select("date amount category _id");
-
-  // Fetching all savings
-  const savings = await Saving.find({ user: req.user._id })
-    .sort({ date: -1 })
-    .select("date amount category _id");
-
-  // Combine and sort by date
-  const transactions = [
-    ...expenses.map((transaction) => ({
+  if (transactionType === 'expense') {
+    // Fetching all expenses
+    const expenses = await Expense.find({ user: req.user._id })
+      .sort({ date: -1 })
+      .select("date amount category _id");
+    transactions = expenses.map((transaction) => ({
       type: "Expense",
       ...transaction._doc,
-    })),
-    ...incomes.map((transaction) => ({ type: "Income", ...transaction._doc })),
-    ...savings.map((transaction) => ({ type: "Saving", ...transaction._doc })),
-  ].sort((a, b) => new Date(b.date) - new Date(a.date));
+    }));
+  } else if (transactionType === 'income') {
+    // Fetching all incomes
+    const incomes = await Income.find({ user: req.user._id })
+      .sort({ date: -1 })
+      .select("date amount category _id");
+    transactions = incomes.map((transaction) => ({
+      type: "Income",
+      ...transaction._doc,
+    }));
+  } else if (transactionType === 'saving') {
+    // Fetching all savings
+    const savings = await Saving.find({ user: req.user._id })
+      .sort({ date: -1 })
+      .select("date amount category _id");
+    transactions = savings.map((transaction) => ({
+      type: "Saving",
+      ...transaction._doc,
+    }));
+  } else {
+    // Fetching all transactions
+    const expenses = await Expense.find({ user: req.user._id })
+      .sort({ date: -1 })
+      .select("date amount category _id");
+    const incomes = await Income.find({ user: req.user._id })
+      .sort({ date: -1 })
+      .select("date amount category _id");
+    const savings = await Saving.find({ user: req.user._id })
+      .sort({ date: -1 })
+      .select("date amount category _id");
+
+    transactions = [
+      ...expenses.map((transaction) => ({
+        type: "Expense",
+        ...transaction._doc,
+      })),
+      ...incomes.map((transaction) => ({ type: "Income", ...transaction._doc })),
+      ...savings.map((transaction) => ({ type: "Saving", ...transaction._doc })),
+    ].sort((a, b) => new Date(b.date) - new Date(a.date));
+  }
 
   if (transactions.length <= (page * transactionPerPage)) {
     throw new ApiError(400, "No data found!");
@@ -509,12 +535,11 @@ const getAllTransactionInPages = asyncHandler(async (req, res) => {
   const pagedTransactions = transactions.slice(page * transactionPerPage);
   const getFinalArray = pagedTransactions.slice(0, transactionPerPage);
 
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(200, getFinalArray, "All transactions fetched successfully")
-    );
+  return res.status(200).json(
+    new ApiResponse(200, { data: getFinalArray, total: transactions.length }, "All transactions fetched successfully")
+  );
 });
+
 
 export {
   registerUser,

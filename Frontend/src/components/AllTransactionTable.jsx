@@ -3,93 +3,80 @@ import { Link } from "react-router-dom";
 import "flowbite";
 
 function AllTransactionTable() {
-  const [tableData, setTableData] = useState({});
-  const [selectedOption, setSelectedOption] = useState("All");
-  const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [tableData, setTableData] = useState([]);
+const [selectedOption, setSelectedOption] = useState("All");
+const [dropdownVisible, setDropdownVisible] = useState(false);
+const [page, setPage] = useState(0);
+const [totalData, setTotalData] = useState(0);
+const transactionPerPage = 6;
 
-  const fetchUserData = async () => {
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      console.error("No access token found");
-      return;
-    }
+const fetchUserData = async () => {
+  const token = localStorage.getItem("accessToken");
+  if (!token) {
+    console.error("No access token found");
+    return;
+  }
 
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_DB_URL}/user/all-transactions/all`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+  const transactionTypeQuery = ["Expense", "Saving", "Income"].includes(selectedOption) 
+    ? `&type=${selectedOption.toLowerCase()}` 
+    : 'all';
 
-      if (response.ok) {
-        const data = await response.json();
-        setTableData(data);
-        return;
-      } else {
-        console.error("Failed to fetch data");
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_DB_URL}/user/get-paged-transactions?p=${page}${transactionTypeQuery}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
+    );
 
-  const fetchSpecificFinance = async (transactionType) => {
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      console.error("No access token found");
+    if (response.ok) {
+      const result = await response.json();
+      const { data, total } = result.data;
+      setTableData(data);
+      setTotalData(total);
       return;
-    }
-
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_DB_URL}/${transactionType}/get-${transactionType}/all`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setTableData(data);
-        return;
-      } else {
-        console.error("Failed to fetch data");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
-
-  useEffect(() => {
-    if (selectedOption && ["Expense", "Saving", "Income"].includes(selectedOption)) {
-      const transactionType = selectedOption.toLowerCase();
-      fetchSpecificFinance(transactionType);
     } else {
-      fetchUserData();
+      console.error("Failed to fetch data");
     }
-  }, [selectedOption]);
-  
+  } catch (error) {
+    console.error("Error:", error);
+  }
+};
 
-  const handleRadioChange = (event) => {
-    setSelectedOption(event.target.value);
-    setDropdownVisible(false); // Close dropdown on selection
-  };
+useEffect(() => {
+  fetchUserData();
+}, [selectedOption, page]);
 
-  const toggleDropdown = () => {
-    setDropdownVisible(!dropdownVisible);
-  };
+const handleRadioChange = (event) => {
+  setSelectedOption(event.target.value);
+  setDropdownVisible(false); // Close dropdown on selection
+};
+
+const toggleDropdown = () => {
+  setDropdownVisible(!dropdownVisible);
+};
+
+const handleNext = (e) => {
+  e.preventDefault();
+  setPage((p) => {
+    return Math.max(p + 1); // Prevents page from going below 0
+  });
+};
+
+const handlePrevious = (e) => {
+  e.preventDefault();
+  setPage((p) => {
+    return Math.max(p - 1, 0); // Prevents page from going below 0
+  });
+};
+
 
   return (
-    <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <div className="relative overflow-x-auto shadow-md sm:rounded-lg p-5">
       <div className="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4">
         <div>
           <button
@@ -240,8 +227,8 @@ function AllTransactionTable() {
           </tr>
         </thead>
         <tbody>
-          {tableData.data &&
-            tableData.data.map((data, index) => {
+          {tableData &&
+            tableData.map((data, index) => {
               const date = new Date(data.date);
               const formattedDate = `${date
                 .getDate()
@@ -297,102 +284,49 @@ function AllTransactionTable() {
             })}
         </tbody>
       </table>
-      {tableData.total_page && tableData.total_page > 1 && (
-        <nav
-          className="flex items-center justify-between pt-4 mb-4"
-          aria-label="Table navigation"
-        >
-          <ul className="inline-flex items-center -space-x-px">
-            <li>
-              <Link
-                to="/"
-                className="block px-2 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-              >
-                <span className="sr-only">Previous</span>
-                <svg
-                  className="w-5 h-5"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M13 17 7 10l6-7"
-                  />
-                </svg>
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/"
-                className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-              >
-                1
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/"
-                className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-              >
-                2
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/"
-                aria-current="page"
-                className="z-10 px-3 py-2 leading-tight text-blue-600 bg-blue-50 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
-              >
-                3
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/"
-                className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-              >
-                ...
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/"
-                className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-              >
-                100
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/"
-                className="block px-2 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-              >
-                <span className="sr-only">Next</span>
-                <svg
-                  className="w-5 h-5"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="m7 17 6-7-6-7"
-                  />
-                </svg>
-              </Link>
-            </li>
-          </ul>
-        </nav>
-      )}
+      <nav
+        className="flex items-center flex-column flex-wrap md:flex-row justify-between pt-4"
+        aria-label="Table navigation"
+      >
+        <span className="text-sm font-normal text-gray-500 dark:text-gray-400 mb-4 md:mb-0 block w-full md:inline md:w-auto">
+        Showing{" "}
+        <span className="font-semibold text-gray-900 dark:text-white">
+          {`${(page * transactionPerPage) + 1} - ${Math.min((page + 1) * transactionPerPage, totalData)}`}
+        </span>{" "}
+        of{" "}
+        <span className="font-semibold text-gray-900 dark:text-white">{totalData}</span>
+      </span>
+        <ul className="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
+          <li>
+            <button
+              disabled={page === 0}
+              onClick={handlePrevious}
+              className={`flex items-center justify-center px-3 h-8 ms-0 leading-tight border rounded-s-lg 
+      ${
+        page === 0
+          ? "text-gray-300 bg-white dark:bg-gray-300 dark:border-gray-700 dark:text-gray-500 hover:cursor-not-allowed"
+          : "text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+      }`}
+            >
+              Previous
+            </button>
+          </li>
+          <li>
+            <button
+              onClick={handleNext}
+              disabled={totalData < (page + 1) * 10}
+              className={`flex items-center justify-center px-3 h-8 leading-tight border rounded-e-lg 
+      ${
+        totalData < (page + 1) * 10
+          ? "text-gray-300 bg-gray-200 dark:bg-gray-700 dark:border-gray-700 dark:text-gray-500 hover:cursor-not-allowed"
+          : "text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+      }`}
+            >
+              Next
+            </button>
+          </li>
+        </ul>
+      </nav>
     </div>
   );
 }
